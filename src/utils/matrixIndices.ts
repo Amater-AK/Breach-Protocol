@@ -1,7 +1,10 @@
 import { type Matrix } from "@/types";
 
-export function getMatrixRowIndices(matrix: Matrix, directionNumber: number): number[] {
+export function getMatrixRowIndices(matrix: Matrix, directionNumber: number | null): number[] {
     const indices: number[] = [];
+
+    if (directionNumber === null) return indices;
+
     const size = Math.sqrt(matrix.length);
     const startIndex = directionNumber * size;
     const endtIndex = startIndex + size;
@@ -12,8 +15,11 @@ export function getMatrixRowIndices(matrix: Matrix, directionNumber: number): nu
 
     return indices;
 }
-export function getMatrixColIndices(matrix: Matrix, directionNumber: number): number[] {
+export function getMatrixColIndices(matrix: Matrix, directionNumber: number | null): number[] {
     const indices: number[] = [];
+
+    if (directionNumber === null) return indices;
+
     const size = Math.sqrt(matrix.length);
 
     for (let i = directionNumber; i < matrix.length; i += size) {
