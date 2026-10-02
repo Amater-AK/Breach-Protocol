@@ -1,4 +1,4 @@
-import { type IGenerationSequence, type IGenerationSequences, type IGenerationMatrix } from "./generation.type";
+import { type Sequence, type Sequences, type Matrix } from "@/types";
 
 const RERANDOM_LIMIT = 10;
 
@@ -40,10 +40,10 @@ export class GenerationClient {
         return this._alphabet[Math.floor(Math.random() * this._alphabet.length)];
     }
 
-    public generateSequences(quantity: number = 1, length: number = 1): IGenerationSequences {
-        const sequences: IGenerationSequences = [];
+    public generateSequences(quantity: number = 1, length: number = 1): Sequences {
+        const sequences: Sequences = [];
         for (let i = 0; i < quantity; i++) {
-            const sequence: IGenerationSequence = [];
+            const sequence: Sequence = [];
 
             for (let j = 0; j < length; j++) {
                 sequence.push(this.getRandomAlphabetValue());
@@ -55,8 +55,8 @@ export class GenerationClient {
         return sequences;
     }
 
-    public generateMatrix(size: number = 2): IGenerationMatrix {
-        const matrix: IGenerationMatrix = [];
+    public generateMatrix(size: number = 2): Matrix {
+        const matrix: Matrix = [];
 
         for (let i = 0; i < size * size; i++) {
             matrix.push(this.getRandomAlphabetValue());
