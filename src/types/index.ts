@@ -1,3 +1,4 @@
 export * from "./sequence";
 export * from "./matrix";
-export * from "./game";
+export * from "./gameState";
+export * from "./matrixDirection";

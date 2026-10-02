@@ -6,7 +6,8 @@ export type Sequences = Sequence[];
 export type SequenceState = (typeof SEQUENCE_STATE)[keyof typeof SEQUENCE_STATE];
 
 export interface GameSequence {
-    sequence: Sequence;
+    values: Sequence;
     index: number;
     state: SequenceState;
 }
+export type GameSequences = GameSequence[];
