@@ -11,8 +11,8 @@ interface CodeMatrixProps {
     direction: MatrixDirection;
     currentDirectionNumber: number;
     nextDirectionNumber: number | null;
-    onDirectionHover: (index: number | null) => void;
-    onSelect: (value: string, sizedIndex: number) => void;
+    onDirectionHover: (directionNumber: number | null) => void;
+    onSelect: (value: string, directionNumber: number) => void;
 }
 
 export function CodeMatrix({
@@ -43,20 +43,20 @@ export function CodeMatrix({
                 const col = index % size;
                 const row = (index - col) / size;
                 const inCurrentDirection = currentDirectionIndices.includes(index);
-                const newIndex = direction === MATRIX_DIRECTION.ROW ? col : row;
+                const newDirectionNumber = direction === MATRIX_DIRECTION.ROW ? col : row;
 
                 return (
                     <CodeMatrixGridElement
                         key={`element#${index}`}
                         inCurrentDirection={inCurrentDirection}
                         inNextDirection={nextDirectionIndices.includes(index)}
-                        onEnter={() => onDirectionHover(newIndex)}
+                        onEnter={() => onDirectionHover(newDirectionNumber)}
                         onLeave={() => onDirectionHover(null)}
                     >
                         <CodeMatrixElement
                             element={element}
                             isDisabled={!inCurrentDirection}
-                            onClick={() => onSelect(element, newIndex)}
+                            onClick={() => onSelect(element, newDirectionNumber)}
                         />
                     </CodeMatrixGridElement>
                 );
