@@ -65,7 +65,7 @@ export function Game() {
         setBuffer([]);
     }
 
-    function handleSelectElement(value: Element, directionNumber: number) {
+    function handleSelectElement(value: Element, index: number, directionNumber: number) {
         if (gameState === GAME_STATE.WAIT) {
             setGameState(GAME_STATE.PLAYING);
             // Включение таймера
@@ -73,6 +73,11 @@ export function Game() {
         if (gameState === GAME_STATE.RESULTS) {
             return;
         }
+
+        if (value === "") return;
+
+        // Обновление матрицы
+        setMatrix((prevMatrix) => prevMatrix.map((element, i) => (i === index ? "" : element)));
 
         // Заполнение буфера
         setBuffer((prevBuffer) => [...prevBuffer, value]);

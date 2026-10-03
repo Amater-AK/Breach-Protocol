@@ -13,7 +13,7 @@ export function CodeMatrixElement({ element, isDisabled, onClick }: CodeMatrixEl
             disabled={isDisabled}
             onClick={onClick}
         >
-            {element}
+            {element === "" ? "[ ]" : element}
         </button>
     );
 }

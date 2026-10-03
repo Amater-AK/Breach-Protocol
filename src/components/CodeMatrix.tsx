@@ -12,7 +12,7 @@ interface CodeMatrixProps {
     currentDirectionNumber: number;
     nextDirectionNumber: number | null;
     onDirectionHover: (directionNumber: number | null) => void;
-    onSelect: (value: Element, directionNumber: number) => void;
+    onSelect: (value: Element, index: number, directionNumber: number) => void;
 }
 
 export function CodeMatrix({
@@ -56,7 +56,7 @@ export function CodeMatrix({
                         <CodeMatrixElement
                             element={element}
                             isDisabled={!inCurrentDirection}
-                            onClick={() => onSelect(element, newDirectionNumber)}
+                            onClick={() => onSelect(element, index, newDirectionNumber)}
                         />
                     </CodeMatrixGridElement>
                 );
