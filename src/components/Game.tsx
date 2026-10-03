@@ -17,12 +17,23 @@ import { MATRIX_DIRECTION } from "@/consts";
 
 import { createGameSequence } from "@/utils";
 
+const DEFAULT_CONFIG = {
+    ALPHABET_LENGTH: 4,
+    MATRIX_SIZE: 5,
+    BUFFER_SIZE: 5,
+    SEQUENCE_QUANTITY: 2,
+    SEQUENCE_LENGTH: 3,
+} as const;
+
 export function Game() {
     const generation = useGeneration();
 
-    const [matrix, setMatrix] = useState<Matrix>(() => generation.generateMatrix(5));
+    const [matrix, setMatrix] = useState<Matrix>(() => generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
     const [sequences, setSequences] = useState<GameSequences>(() => {
-        const sequences = generation.generateSequences(2, 3);
+        const sequences = generation.generateSequences(
+            DEFAULT_CONFIG.SEQUENCE_QUANTITY,
+            DEFAULT_CONFIG.SEQUENCE_LENGTH,
+        );
         return createGameSequence(sequences);
     });
 
@@ -33,9 +44,14 @@ export function Game() {
     const [buffer, setBuffer] = useState<TypeBuffer>([]);
 
     function handleRestart() {
-        generation.reset(4);
-        setMatrix(generation.generateMatrix(5));
-        setSequences(createGameSequence(generation.generateSequences(2, 3)));
+        generation.reset(DEFAULT_CONFIG.ALPHABET_LENGTH);
+        setMatrix(generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
+        setSequences(
+            createGameSequence(
+                generation.generateSequences(DEFAULT_CONFIG.SEQUENCE_QUANTITY, DEFAULT_CONFIG.SEQUENCE_LENGTH),
+            ),
+        );
+        setBuffer([]);
     }
 
     function handleSelectElement(value: Element, directionNumber: number) {
@@ -48,7 +64,7 @@ export function Game() {
 
         // Заполнение буфера
         setBuffer((prevBuffer) => [...prevBuffer, value]);
-        if (buffer.length + 1 === 5) {
+        if (buffer.length + 1 === DEFAULT_CONFIG.BUFFER_SIZE) {
             console.log("Buffer full");
             // Смена состояния игры
         }
@@ -65,7 +81,7 @@ export function Game() {
                 onSelect={handleSelectElement}
             />
 
-            <Buffer buffer={buffer} size={5} />
+            <Buffer buffer={buffer} size={DEFAULT_CONFIG.BUFFER_SIZE} />
 
             <div>
                 {sequences.map((sequence, index) => (

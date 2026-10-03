@@ -20,7 +20,7 @@ export class GenerationClient {
             let hex = "";
 
             let rerandomIndex = 0;
-            for (rerandomIndex = 0; rerandomIndex < RERANDOM_LIMIT; rerandomIndex++) {
+            for (rerandomIndex; rerandomIndex < RERANDOM_LIMIT; rerandomIndex++) {
                 hex = this.getRandomHexValue();
 
                 if (!alphabet.includes(hex)) break;
