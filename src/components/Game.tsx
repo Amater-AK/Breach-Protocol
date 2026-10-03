@@ -4,6 +4,7 @@ import { useGeneration } from "@/contexts/generation/GenerationContext";
 
 import { CodeMatrix } from "./CodeMatrix";
 import { Buffer } from "./Buffer";
+import { Sequences } from "./Sequences";
 
 import {
     type GameState,
@@ -14,7 +15,7 @@ import {
     type Buffer as TypeBuffer,
 } from "@/types";
 
-import { GAME_STATE, MATRIX_DIRECTION } from "@/consts";
+import { GAME_STATE, MATRIX_DIRECTION, SEQUENCE_STATUS } from "@/consts";
 
 import { createGameSequence } from "@/utils";
 
@@ -77,13 +78,33 @@ export function Game() {
         setBuffer((prevBuffer) => [...prevBuffer, value]);
         if (buffer.length + 1 === DEFAULT_CONFIG.BUFFER_SIZE) {
             // Обновление статуса последовательностей
-            // ...
+            setSequences((prevSequences) =>
+                prevSequences.map((sequence) => {
+                    const newStatus = sequence.index < sequence.values.length ? SEQUENCE_STATUS.FAIL : sequence.status;
+
+                    return {
+                        ...sequence,
+                        status: newStatus,
+                    };
+                }),
+            );
 
             setGameState(GAME_STATE.RESULTS);
         }
 
         // Обновление состояний последовательностей
-        // ...
+        setSequences((prevSequences) =>
+            prevSequences.map((sequence) => {
+                const newIndex = sequence.values[sequence.index] === value ? sequence.index + 1 : sequence.index;
+                const newStatus = newIndex === sequence.values.length ? SEQUENCE_STATUS.SUCCESS : sequence.status;
+
+                return {
+                    ...sequence,
+                    index: newIndex,
+                    status: newStatus,
+                };
+            }),
+        );
 
         // Изменение направления (строка -> колонка -> строка -> ...)
         setDirection((prevDirection) =>
@@ -106,15 +127,7 @@ export function Game() {
 
             <Buffer buffer={buffer} size={DEFAULT_CONFIG.BUFFER_SIZE} />
 
-            <div>
-                {sequences.map((sequence, index) => (
-                    <p key={`sequence#${index}`} className="flex gap-2 uppercase">
-                        {sequence.values.map((value, index) => (
-                            <span key={`value#${index}`}>{value}</span>
-                        ))}
-                    </p>
-                ))}
-            </div>
+            <Sequences sequences={sequences} />
 
             {gameState === GAME_STATE.RESULTS && (
                 <button className="p-1 bg-stone-400" onClick={handleRestart}>

@@ -1,15 +1,15 @@
 import { type Element } from "./element";
 
-import { SEQUENCE_STATE } from "@/consts";
+import { SEQUENCE_STATUS } from "@/consts";
 
 export type Sequence = Element[];
 export type Sequences = Sequence[];
 
-export type SequenceState = (typeof SEQUENCE_STATE)[keyof typeof SEQUENCE_STATE];
+export type SequenceStatus = (typeof SEQUENCE_STATUS)[keyof typeof SEQUENCE_STATUS];
 
 export interface GameSequence {
     values: Sequence;
     index: number;
-    state: SequenceState;
+    status: SequenceStatus;
 }
 export type GameSequences = GameSequence[];
