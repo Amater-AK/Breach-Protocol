@@ -1,4 +1,4 @@
-import { type Buffer as TypeBuffer } from "@/types";
+import { type Buffer as TypeBuffer, type Element } from "@/types";
 
 interface BufferProps {
     buffer: TypeBuffer;
@@ -18,7 +18,7 @@ export function Buffer({ buffer, size }: BufferProps) {
 }
 
 interface BufferElementProps {
-    element: string;
+    element: Element;
 }
 
 function BufferElement({ element }: BufferElementProps) {

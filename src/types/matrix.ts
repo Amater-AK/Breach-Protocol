@@ -1,1 +1,3 @@
-export type Matrix = string[];
+import { type Element } from "./element";
+
+export type Matrix = Element[];

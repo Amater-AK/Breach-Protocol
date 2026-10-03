@@ -1,6 +1,8 @@
+import { type Element } from "./element";
+
 import { SEQUENCE_STATE } from "@/consts";
 
-export type Sequence = string[];
+export type Sequence = Element[];
 export type Sequences = Sequence[];
 
 export type SequenceState = (typeof SEQUENCE_STATE)[keyof typeof SEQUENCE_STATE];

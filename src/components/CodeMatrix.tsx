@@ -1,4 +1,4 @@
-import { type Matrix, type MatrixDirection } from "@/types";
+import { type Element, type Matrix, type MatrixDirection } from "@/types";
 
 import { CodeMatrixElement } from "./CodeMatrixElement";
 
@@ -12,7 +12,7 @@ interface CodeMatrixProps {
     currentDirectionNumber: number;
     nextDirectionNumber: number | null;
     onDirectionHover: (directionNumber: number | null) => void;
-    onSelect: (value: string, directionNumber: number) => void;
+    onSelect: (value: Element, directionNumber: number) => void;
 }
 
 export function CodeMatrix({

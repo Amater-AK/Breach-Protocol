@@ -5,7 +5,13 @@ import { useGeneration } from "@/contexts/generation/GenerationContext";
 import { CodeMatrix } from "./CodeMatrix";
 import { Buffer } from "./Buffer";
 
-import { type Matrix, type MatrixDirection, type GameSequences, type Buffer as TypeBuffer } from "@/types";
+import {
+    type Element,
+    type Matrix,
+    type MatrixDirection,
+    type GameSequences,
+    type Buffer as TypeBuffer,
+} from "@/types";
 
 import { MATRIX_DIRECTION } from "@/consts";
 
@@ -32,7 +38,7 @@ export function Game() {
         setSequences(createGameSequence(generation.generateSequences(2, 3)));
     }
 
-    function handleSelectElement(value: string, directionNumber: number) {
+    function handleSelectElement(value: Element, directionNumber: number) {
         // Изменение направления (строка -> колонка -> строка -> ...)
         setDirection((prevDirection) =>
             prevDirection === MATRIX_DIRECTION.ROW ? MATRIX_DIRECTION.COL : MATRIX_DIRECTION.ROW,

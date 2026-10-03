@@ -1,5 +1,7 @@
+import { type Element } from "@/types";
+
 interface CodeMatrixElementProps {
-    element: string;
+    element: Element;
     isDisabled: boolean;
     onClick: () => void;
 }
