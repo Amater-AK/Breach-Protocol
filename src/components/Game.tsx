@@ -6,6 +6,7 @@ import { CodeMatrix } from "./CodeMatrix";
 import { Buffer } from "./Buffer";
 
 import {
+    type GameState,
     type Element,
     type Matrix,
     type MatrixDirection,
@@ -13,7 +14,7 @@ import {
     type Buffer as TypeBuffer,
 } from "@/types";
 
-import { MATRIX_DIRECTION } from "@/consts";
+import { GAME_STATE, MATRIX_DIRECTION } from "@/consts";
 
 import { createGameSequence } from "@/utils";
 
@@ -27,6 +28,8 @@ const DEFAULT_CONFIG = {
 
 export function Game() {
     const generation = useGeneration();
+
+    const [gameState, setGameState] = useState<GameState>(GAME_STATE.WAIT);
 
     const [matrix, setMatrix] = useState<Matrix>(() => generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
     const [sequences, setSequences] = useState<GameSequences>(() => {
@@ -45,29 +48,49 @@ export function Game() {
 
     function handleRestart() {
         generation.reset(DEFAULT_CONFIG.ALPHABET_LENGTH);
+
+        setGameState(GAME_STATE.WAIT);
+
         setMatrix(generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
         setSequences(
             createGameSequence(
                 generation.generateSequences(DEFAULT_CONFIG.SEQUENCE_QUANTITY, DEFAULT_CONFIG.SEQUENCE_LENGTH),
             ),
         );
+
+        setDirection(MATRIX_DIRECTION.ROW);
+        setCurrentDirectionNumber(0);
+        setNextDirectionNumber(null);
         setBuffer([]);
     }
 
     function handleSelectElement(value: Element, directionNumber: number) {
+        if (gameState === GAME_STATE.WAIT) {
+            setGameState(GAME_STATE.PLAYING);
+            // Включение таймера
+        }
+        if (gameState === GAME_STATE.RESULTS) {
+            return;
+        }
+
+        // Заполнение буфера
+        setBuffer((prevBuffer) => [...prevBuffer, value]);
+        if (buffer.length + 1 === DEFAULT_CONFIG.BUFFER_SIZE) {
+            // Обновление статуса последовательностей
+            // ...
+
+            setGameState(GAME_STATE.RESULTS);
+        }
+
+        // Обновление состояний последовательностей
+        // ...
+
         // Изменение направления (строка -> колонка -> строка -> ...)
         setDirection((prevDirection) =>
             prevDirection === MATRIX_DIRECTION.ROW ? MATRIX_DIRECTION.COL : MATRIX_DIRECTION.ROW,
         );
         setCurrentDirectionNumber(directionNumber);
         setNextDirectionNumber(null);
-
-        // Заполнение буфера
-        setBuffer((prevBuffer) => [...prevBuffer, value]);
-        if (buffer.length + 1 === DEFAULT_CONFIG.BUFFER_SIZE) {
-            console.log("Buffer full");
-            // Смена состояния игры
-        }
     }
 
     return (
@@ -92,6 +115,12 @@ export function Game() {
                     </p>
                 ))}
             </div>
+
+            {gameState === GAME_STATE.RESULTS && (
+                <button className="p-1 bg-stone-400" onClick={handleRestart}>
+                    Again
+                </button>
+            )}
         </div>
     );
 }
