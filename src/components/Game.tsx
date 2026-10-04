@@ -85,24 +85,14 @@ export function Game() {
         // Заполнение буфера
         setBuffer((prevBuffer) => [...prevBuffer, value]);
         if (buffer.length + 1 === DEFAULT_CONFIG.BUFFER_SIZE) {
-            // Обновление статуса последовательностей
-            setSequences((prevSequences) =>
-                prevSequences.map((sequence) => {
-                    const newStatus = sequence.index < sequence.values.length ? SEQUENCE_STATUS.FAIL : sequence.status;
-
-                    return {
-                        ...sequence,
-                        status: newStatus,
-                    };
-                }),
-            );
+            finalUpdateSequencesStatus();
 
             setGameState(GAME_STATE.RESULTS);
         }
 
         // Обновление состояний последовательностей
-        setSequences((prevSequences) =>
-            prevSequences.map((sequence) => {
+        setSequences((prevSequences) => {
+            const nextSequences = prevSequences.map((sequence) => {
                 const newIndex = sequence.values[sequence.index] === value ? sequence.index + 1 : sequence.index;
                 const newStatus = newIndex === sequence.values.length ? SEQUENCE_STATUS.SUCCESS : sequence.status;
 
@@ -111,8 +101,15 @@ export function Game() {
                     index: newIndex,
                     status: newStatus,
                 };
-            }),
-        );
+            });
+
+            // Все последовательности выполнены
+            if (nextSequences.every((sequence) => sequence.status === SEQUENCE_STATUS.SUCCESS)) {
+                setGameState(GAME_STATE.RESULTS);
+            }
+
+            return nextSequences;
+        });
 
         // Изменение направления (строка -> колонка -> строка -> ...)
         setDirection((prevDirection) =>
@@ -122,8 +119,7 @@ export function Game() {
         setNextDirectionNumber(null);
     }
 
-    function handleTimeOut() {
-        // Обновление статуса последовательностей
+    function finalUpdateSequencesStatus() {
         setSequences((prevSequences) =>
             prevSequences.map((sequence) => {
                 const newStatus = sequence.index < sequence.values.length ? SEQUENCE_STATUS.FAIL : sequence.status;
@@ -134,6 +130,10 @@ export function Game() {
                 };
             }),
         );
+    }
+
+    function handleTimeOut() {
+        finalUpdateSequencesStatus();
 
         setGameState(GAME_STATE.RESULTS);
     }
@@ -142,7 +142,7 @@ export function Game() {
         <div>
             <Timer
                 key={gameIterationKey}
-                duration={10000}
+                duration={100000}
                 isRunning={gameState === GAME_STATE.PLAYING}
                 onTimeOut={handleTimeOut}
             />
