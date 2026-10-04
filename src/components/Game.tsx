@@ -5,6 +5,7 @@ import { useGeneration } from "@/contexts/generation/GenerationContext";
 import { CodeMatrix } from "./CodeMatrix";
 import { Buffer } from "./Buffer";
 import { Sequences } from "./Sequences";
+import { Timer } from "./Timer";
 
 import {
     type GameState,
@@ -31,6 +32,7 @@ export function Game() {
     const generation = useGeneration();
 
     const [gameState, setGameState] = useState<GameState>(GAME_STATE.WAIT);
+    const [gameIterationKey, setGameIterationKey] = useState(0);
 
     const [matrix, setMatrix] = useState<Matrix>(() => generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
     const [sequences, setSequences] = useState<GameSequences>(() => {
@@ -51,6 +53,7 @@ export function Game() {
         generation.reset(DEFAULT_CONFIG.ALPHABET_LENGTH);
 
         setGameState(GAME_STATE.WAIT);
+        setGameIterationKey((prevIteratinoKey) => prevIteratinoKey + 1);
 
         setMatrix(generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
         setSequences(
@@ -119,8 +122,31 @@ export function Game() {
         setNextDirectionNumber(null);
     }
 
+    function handleTimeOut() {
+        // Обновление статуса последовательностей
+        setSequences((prevSequences) =>
+            prevSequences.map((sequence) => {
+                const newStatus = sequence.index < sequence.values.length ? SEQUENCE_STATUS.FAIL : sequence.status;
+
+                return {
+                    ...sequence,
+                    status: newStatus,
+                };
+            }),
+        );
+
+        setGameState(GAME_STATE.RESULTS);
+    }
+
     return (
         <div>
+            <Timer
+                key={gameIterationKey}
+                duration={10000}
+                isRunning={gameState === GAME_STATE.PLAYING}
+                onTimeOut={handleTimeOut}
+            />
+
             <CodeMatrix
                 matrix={matrix}
                 direction={direction}
