@@ -8,3 +8,11 @@ export function createGameSequence(sequences: Sequences): GameSequences {
         return gameSequence;
     });
 }
+
+export function isSomeGameSequencesCompleted(sequences: GameSequences) {
+    return sequences.some((sequence) => sequence.status === SEQUENCE_STATUS.SUCCESS);
+}
+
+export function isAllGameSequencesCompleted(sequences: GameSequences) {
+    return sequences.every((sequence) => sequence.status === SEQUENCE_STATUS.SUCCESS);
+}

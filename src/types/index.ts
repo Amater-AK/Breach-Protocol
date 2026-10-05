@@ -6,3 +6,4 @@ export * from "./matrixDirection";
 export * from "./buffer";
 export * from "./generationConfig";
 export * from "./gameConfig";
+export * from "./gameCompletionOption";

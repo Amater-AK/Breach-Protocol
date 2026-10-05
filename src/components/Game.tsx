@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 import { useGeneration } from "@/contexts/generation/GenerationContext";
 
@@ -10,15 +10,16 @@ import { Timer } from "./Timer";
 import {
     type GameConfig,
     type GameState,
+    type GameResult,
     type Element,
     type Matrix,
     type GameSequences,
     type Buffer as TypeBuffer,
 } from "@/types";
 
-import { GAME_STATE, SEQUENCE_STATUS } from "@/consts";
+import { GAME_STATE, SEQUENCE_STATUS, GAME_COMPLETION_OPTION, GAME_COMPLETION_DESCRIPTIONS } from "@/consts";
 
-import { createGameSequence } from "@/utils";
+import { createGameSequence, isSomeGameSequencesCompleted, isAllGameSequencesCompleted } from "@/utils";
 
 interface GameProps {
     config: GameConfig;
@@ -28,6 +29,8 @@ export function Game({ config }: GameProps) {
     const generation = useGeneration();
 
     const [gameState, setGameState] = useState<GameState>(GAME_STATE.WAIT);
+    const [gameResult, setGameResult] = useState<GameResult | null>(null);
+    const [timedOut, setTimedOut] = useState(false);
     const [gameIterationKey, setGameIterationKey] = useState(() => {
         generation.generate(config); // ! Временно
         return 0;
@@ -45,6 +48,7 @@ export function Game({ config }: GameProps) {
         generation.generate(config);
 
         setGameState(GAME_STATE.WAIT);
+        setTimedOut(false);
         setGameIterationKey((prevIteratinoKey) => prevIteratinoKey + 1);
 
         setMatrix(generation.getMatrix());
@@ -66,34 +70,41 @@ export function Game({ config }: GameProps) {
 
         // Заполнение буфера
         setBuffer((prevBuffer) => [...prevBuffer, element]);
-        if (buffer.length + 1 === config.bufferSize) {
-            finalUpdateSequencesStatus();
-
-            setGameState(GAME_STATE.RESULTS);
-        }
 
         // Обновление состояний последовательностей
-        setSequences((prevSequences) => {
-            const nextSequences = prevSequences.map((sequence) => {
-                const newIndex = sequence.values[sequence.index] === element ? sequence.index + 1 : sequence.index;
-                const newStatus = newIndex === sequence.values.length ? SEQUENCE_STATUS.SUCCESS : sequence.status;
+        const updatedSequences = sequences.map((sequence) => {
+            const newIndex = sequence.values[sequence.index] === element ? sequence.index + 1 : sequence.index;
+            const newStatus = newIndex === sequence.values.length ? SEQUENCE_STATUS.SUCCESS : sequence.status;
 
-                return {
-                    ...sequence,
-                    index: newIndex,
-                    status: newStatus,
-                };
-            });
-
-            // Все последовательности выполнены
-            if (nextSequences.every((sequence) => sequence.status === SEQUENCE_STATUS.SUCCESS)) {
-                setGameState(GAME_STATE.RESULTS);
-            }
-
-            return nextSequences;
+            return {
+                ...sequence,
+                index: newIndex,
+                status: newStatus,
+            };
         });
+        setSequences(updatedSequences);
+
+        // Все последовательности выполнены
+        // if (updatedSequences.every((sequence) => sequence.status === SEQUENCE_STATUS.SUCCESS)) {
+        //     setGameState(GAME_STATE.RESULTS);
+        //     setGameResult({ type: "success", option: GAME_COMPLETION_OPTION.ALL_UPLOADED });
+
+        //     return;
+        // }
+
+        // Буфер заполнен
+        // if (buffer.length + 1 === config.bufferSize) {
+        //     finalUpdateSequencesStatus();
+
+        //     setGameState(GAME_STATE.RESULTS);
+        //     setGameResult({
+        //         type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
+        //         option: GAME_COMPLETION_OPTION.BUFFER_FULL,
+        //     });
+        // }
     }
 
+    // Не выполненные последовательности помечаются, как проваленные
     function finalUpdateSequencesStatus() {
         setSequences((prevSequences) =>
             prevSequences.map((sequence) => {
@@ -107,17 +118,59 @@ export function Game({ config }: GameProps) {
         );
     }
 
-    function handleTimeOut() {
-        finalUpdateSequencesStatus();
+    const handleTimeOut = useCallback(() => {
+        // finalUpdateSequencesStatus();
+        // setGameState(GAME_STATE.RESULTS);
+        // setGameResult({
+        //     type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
+        //     option: GAME_COMPLETION_OPTION.TIMED_OUT,
+        // });
+        setTimedOut(true);
+    }, []);
 
-        setGameState(GAME_STATE.RESULTS);
-    }
+    // Логика завершения игры
+    useEffect(() => {
+        // Ограничиваем, так как finalUpdateSequencesStatus обновляет sequences
+        if (gameState === GAME_STATE.RESULTS) return;
+
+        // Все последовательности выполнены
+        if (isAllGameSequencesCompleted(sequences)) {
+            setGameState(GAME_STATE.RESULTS);
+            setGameResult({ type: "success", option: GAME_COMPLETION_OPTION.ALL_UPLOADED });
+
+            return;
+        }
+
+        // Буфер заполнен
+        if (buffer.length === config.bufferSize) {
+            finalUpdateSequencesStatus();
+
+            setGameState(GAME_STATE.RESULTS);
+            setGameResult({
+                type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
+                option: GAME_COMPLETION_OPTION.BUFFER_FULL,
+            });
+
+            return;
+        }
+
+        // Время вышло
+        if (timedOut) {
+            finalUpdateSequencesStatus();
+
+            setGameState(GAME_STATE.RESULTS);
+            setGameResult({
+                type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
+                option: GAME_COMPLETION_OPTION.TIMED_OUT,
+            });
+        }
+    }, [sequences, buffer, timedOut]);
 
     return (
         <div>
             <Timer
                 key={`timer#${gameIterationKey}`}
-                duration={5000}
+                duration={10000}
                 isRunning={gameState === GAME_STATE.PLAYING}
                 onTimeOut={handleTimeOut}
             />
@@ -134,9 +187,20 @@ export function Game({ config }: GameProps) {
             <Sequences sequences={sequences} />
 
             {gameState === GAME_STATE.RESULTS && (
-                <button className="p-1 bg-stone-400" onClick={handleRestart}>
-                    Again
-                </button>
+                <div className="flex justify-between gap-4">
+                    <p className="flex gap-4">
+                        {gameResult && (
+                            <>
+                                <span>{GAME_COMPLETION_DESCRIPTIONS[gameResult.option]}</span>
+                                <span>{gameResult.type}</span>
+                            </>
+                        )}
+                    </p>
+
+                    <button className="p-1 bg-stone-400" onClick={handleRestart}>
+                        Again
+                    </button>
+                </div>
             )}
         </div>
     );

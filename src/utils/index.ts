@@ -1,2 +1,2 @@
-export * from "./createGameSequence";
+export * from "./sequences";
 export * from "./matrixIndices";
