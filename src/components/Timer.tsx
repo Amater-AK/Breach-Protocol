@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface TimerProps {
     duration: number;
@@ -9,25 +9,27 @@ interface TimerProps {
 export function Timer({ duration, isRunning, onTimeOut }: TimerProps) {
     const [timeLeft, setTimeLeft] = useState(duration);
 
+    const timeLeftRef = useRef(duration);
+    timeLeftRef.current = timeLeft;
+
     useEffect(() => {
-        if (!isRunning || timeLeft <= 0) return;
+        if (!isRunning) return;
 
         const intervalId = setInterval(() => {
-            setTimeLeft((prevTimeLeft) => {
-                const nextTImeLeft = prevTimeLeft - 10;
-                if (nextTImeLeft <= 0) {
-                    clearInterval(intervalId);
-                    onTimeOut();
+            const nextTimeLeft = timeLeftRef.current - 10;
+            if (nextTimeLeft > 0) {
+                setTimeLeft(nextTimeLeft);
+            } else {
+                setTimeLeft(0);
+                clearInterval(intervalId);
+                onTimeOut();
+            }
 
-                    return 0;
-                }
-
-                return nextTImeLeft;
-            });
+            return nextTimeLeft;
         }, 10);
 
         return () => clearInterval(intervalId);
-    }, [isRunning, timeLeft, onTimeOut]);
+    }, [isRunning, onTimeOut]);
 
     return (
         <div className="flex flex-col gap-1 w-60">
