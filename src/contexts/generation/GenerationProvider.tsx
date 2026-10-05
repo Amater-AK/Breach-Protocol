@@ -9,7 +9,7 @@ interface GenerationProviderProps {
 }
 
 export function GenerationProvider({ children }: GenerationProviderProps) {
-    const client = useMemo(() => new GenerationClient(4), []);
+    const client = useMemo(() => new GenerationClient(), []);
 
     return <GenerationContext value={client}>{children}</GenerationContext>;
 }

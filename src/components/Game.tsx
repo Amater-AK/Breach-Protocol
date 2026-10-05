@@ -8,6 +8,7 @@ import { Sequences } from "./Sequences";
 import { Timer } from "./Timer";
 
 import {
+    type GameConfig,
     type GameState,
     type Element,
     type Matrix,
@@ -20,26 +21,22 @@ import { GAME_STATE, MATRIX_DIRECTION, SEQUENCE_STATUS } from "@/consts";
 
 import { createGameSequence } from "@/utils";
 
-const DEFAULT_CONFIG = {
-    ALPHABET_LENGTH: 4,
-    MATRIX_SIZE: 5,
-    BUFFER_SIZE: 5,
-    SEQUENCE_QUANTITY: 2,
-    SEQUENCE_LENGTH: 3,
-} as const;
+interface GameProps {
+    config: GameConfig;
+}
 
-export function Game() {
+export function Game({ config }: GameProps) {
     const generation = useGeneration();
 
     const [gameState, setGameState] = useState<GameState>(GAME_STATE.WAIT);
-    const [gameIterationKey, setGameIterationKey] = useState(0);
+    const [gameIterationKey, setGameIterationKey] = useState(() => {
+        generation.generate(config); // ! Временно
+        return 0;
+    });
 
-    const [matrix, setMatrix] = useState<Matrix>(() => generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
+    const [matrix, setMatrix] = useState<Matrix>(() => generation.getMatrix());
     const [sequences, setSequences] = useState<GameSequences>(() => {
-        const sequences = generation.generateSequences(
-            DEFAULT_CONFIG.SEQUENCE_QUANTITY,
-            DEFAULT_CONFIG.SEQUENCE_LENGTH,
-        );
+        const sequences = generation.getSequences();
         return createGameSequence(sequences);
     });
 
@@ -50,17 +47,13 @@ export function Game() {
     const [buffer, setBuffer] = useState<TypeBuffer>([]);
 
     function handleRestart() {
-        generation.reset(DEFAULT_CONFIG.ALPHABET_LENGTH);
+        generation.generate(config);
 
         setGameState(GAME_STATE.WAIT);
         setGameIterationKey((prevIteratinoKey) => prevIteratinoKey + 1);
 
-        setMatrix(generation.generateMatrix(DEFAULT_CONFIG.MATRIX_SIZE));
-        setSequences(
-            createGameSequence(
-                generation.generateSequences(DEFAULT_CONFIG.SEQUENCE_QUANTITY, DEFAULT_CONFIG.SEQUENCE_LENGTH),
-            ),
-        );
+        setMatrix(generation.getMatrix());
+        setSequences(createGameSequence(generation.getSequences()));
 
         setDirection(MATRIX_DIRECTION.ROW);
         setCurrentDirectionNumber(0);
@@ -84,7 +77,7 @@ export function Game() {
 
         // Заполнение буфера
         setBuffer((prevBuffer) => [...prevBuffer, value]);
-        if (buffer.length + 1 === DEFAULT_CONFIG.BUFFER_SIZE) {
+        if (buffer.length + 1 === config.bufferSize) {
             finalUpdateSequencesStatus();
 
             setGameState(GAME_STATE.RESULTS);
@@ -156,7 +149,7 @@ export function Game() {
                 onSelect={handleSelectElement}
             />
 
-            <Buffer buffer={buffer} size={DEFAULT_CONFIG.BUFFER_SIZE} />
+            <Buffer buffer={buffer} size={config.bufferSize} />
 
             <Sequences sequences={sequences} />
 
