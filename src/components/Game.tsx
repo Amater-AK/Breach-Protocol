@@ -12,12 +12,11 @@ import {
     type GameState,
     type Element,
     type Matrix,
-    type MatrixDirection,
     type GameSequences,
     type Buffer as TypeBuffer,
 } from "@/types";
 
-import { GAME_STATE, MATRIX_DIRECTION, SEQUENCE_STATUS } from "@/consts";
+import { GAME_STATE, SEQUENCE_STATUS } from "@/consts";
 
 import { createGameSequence } from "@/utils";
 
@@ -40,10 +39,6 @@ export function Game({ config }: GameProps) {
         return createGameSequence(sequences);
     });
 
-    const [direction, setDirection] = useState<MatrixDirection>(MATRIX_DIRECTION.ROW);
-    const [currentDirectionNumber, setCurrentDirectionNumber] = useState<number>(0);
-    const [nextDirectionNumber, setNextDirectionNumber] = useState<number | null>(null);
-
     const [buffer, setBuffer] = useState<TypeBuffer>([]);
 
     function handleRestart() {
@@ -54,14 +49,10 @@ export function Game({ config }: GameProps) {
 
         setMatrix(generation.getMatrix());
         setSequences(createGameSequence(generation.getSequences()));
-
-        setDirection(MATRIX_DIRECTION.ROW);
-        setCurrentDirectionNumber(0);
-        setNextDirectionNumber(null);
         setBuffer([]);
     }
 
-    function handleSelectElement(value: Element, index: number, directionNumber: number) {
+    function handleSelectElement(element: Element, index: number) {
         if (gameState === GAME_STATE.WAIT) {
             setGameState(GAME_STATE.PLAYING);
             // Включение таймера
@@ -70,13 +61,11 @@ export function Game({ config }: GameProps) {
             return;
         }
 
-        if (value === "") return;
-
         // Обновление матрицы
         setMatrix((prevMatrix) => prevMatrix.map((element, i) => (i === index ? "" : element)));
 
         // Заполнение буфера
-        setBuffer((prevBuffer) => [...prevBuffer, value]);
+        setBuffer((prevBuffer) => [...prevBuffer, element]);
         if (buffer.length + 1 === config.bufferSize) {
             finalUpdateSequencesStatus();
 
@@ -86,7 +75,7 @@ export function Game({ config }: GameProps) {
         // Обновление состояний последовательностей
         setSequences((prevSequences) => {
             const nextSequences = prevSequences.map((sequence) => {
-                const newIndex = sequence.values[sequence.index] === value ? sequence.index + 1 : sequence.index;
+                const newIndex = sequence.values[sequence.index] === element ? sequence.index + 1 : sequence.index;
                 const newStatus = newIndex === sequence.values.length ? SEQUENCE_STATUS.SUCCESS : sequence.status;
 
                 return {
@@ -103,13 +92,6 @@ export function Game({ config }: GameProps) {
 
             return nextSequences;
         });
-
-        // Изменение направления (строка -> колонка -> строка -> ...)
-        setDirection((prevDirection) =>
-            prevDirection === MATRIX_DIRECTION.ROW ? MATRIX_DIRECTION.COL : MATRIX_DIRECTION.ROW,
-        );
-        setCurrentDirectionNumber(directionNumber);
-        setNextDirectionNumber(null);
     }
 
     function finalUpdateSequencesStatus() {
@@ -134,18 +116,16 @@ export function Game({ config }: GameProps) {
     return (
         <div>
             <Timer
-                key={gameIterationKey}
-                duration={100000}
+                key={`timer#${gameIterationKey}`}
+                duration={5000}
                 isRunning={gameState === GAME_STATE.PLAYING}
                 onTimeOut={handleTimeOut}
             />
 
             <CodeMatrix
+                key={`matrix#${gameIterationKey}`}
                 matrix={matrix}
-                direction={direction}
-                currentDirectionNumber={currentDirectionNumber}
-                nextDirectionNumber={nextDirectionNumber}
-                onDirectionHover={(index) => setNextDirectionNumber(index)}
+                isDisabled={gameState === GAME_STATE.RESULTS}
                 onSelect={handleSelectElement}
             />
 

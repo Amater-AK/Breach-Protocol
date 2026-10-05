@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { type Element, type Matrix, type MatrixDirection } from "@/types";
 
 import { CodeMatrixElement } from "./CodeMatrixElement";
@@ -8,21 +10,15 @@ import { getMatrixRowIndices, getMatrixColIndices } from "@/utils";
 
 interface CodeMatrixProps {
     matrix: Matrix;
-    direction: MatrixDirection;
-    currentDirectionNumber: number;
-    nextDirectionNumber: number | null;
-    onDirectionHover: (directionNumber: number | null) => void;
-    onSelect: (value: Element, index: number, directionNumber: number) => void;
+    isDisabled: boolean;
+    onSelect: (value: Element, index: number) => void;
 }
 
-export function CodeMatrix({
-    matrix,
-    direction,
-    currentDirectionNumber,
-    nextDirectionNumber,
-    onDirectionHover,
-    onSelect,
-}: CodeMatrixProps) {
+export function CodeMatrix({ matrix, isDisabled, onSelect }: CodeMatrixProps) {
+    const [direction, setDirection] = useState<MatrixDirection>(MATRIX_DIRECTION.ROW);
+    const [currentDirectionNumber, setCurrentDirectionNumber] = useState<number>(0);
+    const [nextDirectionNumber, setNextDirectionNumber] = useState<number | null>(null);
+
     const currentDirectionIndices =
         direction === MATRIX_DIRECTION.ROW
             ? getMatrixRowIndices(matrix, currentDirectionNumber)
@@ -32,6 +28,19 @@ export function CodeMatrix({
             ? getMatrixColIndices(matrix, nextDirectionNumber)
             : getMatrixRowIndices(matrix, nextDirectionNumber);
     const size = Math.sqrt(matrix.length);
+
+    function handleSelect(element: Element, index: number, directionNumber: number) {
+        if (element === "" || isDisabled) return;
+
+        // Изменение направления (строка -> колонка -> строка -> ...)
+        setDirection((prevDirection) =>
+            prevDirection === MATRIX_DIRECTION.ROW ? MATRIX_DIRECTION.COL : MATRIX_DIRECTION.ROW,
+        );
+        setCurrentDirectionNumber(directionNumber);
+        setNextDirectionNumber(null);
+
+        onSelect(element, index);
+    }
 
     return (
         // Сделать компонент сетки в css, который получает переменную и устанавливает grid
@@ -50,13 +59,13 @@ export function CodeMatrix({
                         key={`element#${index}`}
                         inCurrentDirection={inCurrentDirection}
                         inNextDirection={nextDirectionIndices.includes(index)}
-                        onEnter={() => onDirectionHover(newDirectionNumber)}
-                        onLeave={() => onDirectionHover(null)}
+                        onEnter={() => setNextDirectionNumber(newDirectionNumber)}
+                        onLeave={() => setNextDirectionNumber(null)}
                     >
                         <CodeMatrixElement
                             element={element}
                             isDisabled={!inCurrentDirection}
-                            onClick={() => onSelect(element, index, newDirectionNumber)}
+                            onClick={() => handleSelect(element, index, newDirectionNumber)}
                         />
                     </CodeMatrixGridElement>
                 );
