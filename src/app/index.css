@@ -66,7 +66,12 @@
     --color-success: var(--color-green-500);
     --color-fail: var(--color-red-400);
 
-    --content-max-width: 64rem;
+    --gradient-horizontal-stripes: var(--color-lime-400) 50%, transparent 50%;
+
+    --text-xxs: 0.625rem;
+
+    --content-max-width: 96rem;
+    --content-main-width: 64rem;
 }
 
 @layer base {
@@ -82,8 +87,13 @@
 }
 
 @layer utilities {
-    .wrapper {
+    .wrapper-wide {
         inline-size: min(var(--content-max-width), 100% - 2 * 0.5rem);
+        margin-inline: auto;
+    }
+
+    .wrapper-main {
+        inline-size: min(var(--content-main-width), 100% - 2 * 0.5rem);
         margin-inline: auto;
     }
 }

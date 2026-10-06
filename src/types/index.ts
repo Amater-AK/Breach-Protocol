@@ -7,3 +7,5 @@ export * from "./buffer";
 export * from "./generationConfig";
 export * from "./gameConfig";
 export * from "./gameCompletionOption";
+export * from "./gameScreen";
+export * from "./gameDifficulty";
