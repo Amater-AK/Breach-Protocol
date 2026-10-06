@@ -1,1 +1,89 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: "RobotoMono";
+    src:
+        local("RobotoMono"),
+        url("@/assets/fonts/RobotoMono/RobotoMono-Regular.woff2") format("woff2"),
+        url("@/assets/fonts/RobotoMono/RobotoMono-Regular.woff") format("woff"),
+        url("@/assets/fonts/RobotoMono/RobotoMono-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+    --font-primary: "RobotoMono", sans-serif;
+
+    /* Primitive Tokens */
+    --color-white: hsl(0, 0%, 100%);
+    --color-black: hsl(0, 0%, 0%);
+
+    --color-green-500: hsl(150, 71%, 50%);
+    --color-green-700: hsl(149, 65%, 29%);
+    --color-green-800: hsl(145, 25%, 15%);
+
+    --color-red-400: hsl(3, 100%, 68%);
+    --color-red-700: hsl(356, 42%, 20%);
+    --color-red-800: hsl(3, 68%, 12%);
+
+    --color-blue-400: hsl(182, 97%, 71%);
+
+    --color-purple-900: hsl(264, 17%, 12%);
+
+    --color-lime-400: hsl(71, 81%, 66%);
+    --color-lime-600: hsl(71, 24%, 48%);
+
+    /* Semantic Tokens - Light */
+    --color-bg-primary: var(--color-purple-900);
+    --color-bg-success: var(--color-green-800);
+    --color-bg-fail: var(--color-red-800);
+
+    --color-surface-primary: var(--color-lime-400);
+    --color-surface-success: var(--color-green-500);
+    --color-surface-fail: var(--color-red-400);
+
+    --color-text-primary: var(--color-lime-400);
+    --color-text-secondary: var(--color-white);
+    --color-text-attention: var(--color-blue-400);
+    --color-text-negative: var(--color-purple-900);
+
+    --color-button-primary-bg: var(--color-green-700);
+    --color-button-primary-text: var(--color-green-500);
+    --color-button-primary-border: var(--color-green-500);
+    --color-button-primary-text-hover: var(--color-purple-900);
+
+    --color-button-secondary-bg: var(--color-red-700);
+    --color-button-secondary-text: var(--color-red-400);
+    --color-button-secondary-border: var(--color-red-400);
+    --color-button-secondary-text-hover: var(--color-purple-900);
+
+    --color-border-primary: var(--color-lime-400);
+    --color-border-secondary: var(--color-lime-600);
+
+    --color-outline: var(--color-blue-400);
+
+    --color-success: var(--color-green-500);
+    --color-fail: var(--color-red-400);
+
+    --content-max-width: 64rem;
+}
+
+@layer base {
+    body {
+        @apply font-primary text-sm font-normal md:text-base text-text-primary bg-bg-primary outline-outline;
+    }
+}
+
+@layer components {
+    .icon {
+        @apply shrink-0;
+    }
+}
+
+@layer utilities {
+    .wrapper {
+        inline-size: min(var(--content-max-width), 100% - 2 * 0.5rem);
+        margin-inline: auto;
+    }
+}
