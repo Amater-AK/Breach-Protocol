@@ -10,22 +10,19 @@ export function Timer({ duration, isRunning, onTimeOut }: TimerProps) {
     const [timeLeft, setTimeLeft] = useState(duration);
 
     const timeLeftRef = useRef(duration);
-    timeLeftRef.current = timeLeft;
 
     useEffect(() => {
         if (!isRunning) return;
 
         const intervalId = setInterval(() => {
-            const nextTimeLeft = timeLeftRef.current - 10;
-            if (nextTimeLeft > 0) {
-                setTimeLeft(nextTimeLeft);
+            timeLeftRef.current -= 10;
+            if (timeLeftRef.current > 0) {
+                setTimeLeft(timeLeftRef.current);
             } else {
                 setTimeLeft(0);
                 clearInterval(intervalId);
                 onTimeOut();
             }
-
-            return nextTimeLeft;
         }, 10);
 
         return () => clearInterval(intervalId);

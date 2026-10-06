@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 
 import { useGeneration } from "@/contexts/generation/GenerationContext";
 
@@ -30,7 +30,6 @@ export function Game({ config }: GameProps) {
 
     const [gameState, setGameState] = useState<GameState>(GAME_STATE.WAIT);
     const [gameResult, setGameResult] = useState<GameResult | null>(null);
-    const [timedOut, setTimedOut] = useState(false);
     const [gameIterationKey, setGameIterationKey] = useState(() => {
         generation.generate(config); // ! Временно
         return 0;
@@ -48,7 +47,6 @@ export function Game({ config }: GameProps) {
         generation.generate(config);
 
         setGameState(GAME_STATE.WAIT);
-        setTimedOut(false);
         setGameIterationKey((prevIteratinoKey) => prevIteratinoKey + 1);
 
         setMatrix(generation.getMatrix());
@@ -83,6 +81,8 @@ export function Game({ config }: GameProps) {
             };
         });
         setSequences(updatedSequences);
+
+        checkGameCompletion(updatedSequences);
 
         // Все последовательности выполнены
         // if (updatedSequences.every((sequence) => sequence.status === SEQUENCE_STATUS.SUCCESS)) {
@@ -119,20 +119,16 @@ export function Game({ config }: GameProps) {
     }
 
     const handleTimeOut = useCallback(() => {
-        // finalUpdateSequencesStatus();
-        // setGameState(GAME_STATE.RESULTS);
-        // setGameResult({
-        //     type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
-        //     option: GAME_COMPLETION_OPTION.TIMED_OUT,
-        // });
-        setTimedOut(true);
-    }, []);
+        finalUpdateSequencesStatus();
 
-    // Логика завершения игры
-    useEffect(() => {
-        // Ограничиваем, так как finalUpdateSequencesStatus обновляет sequences
-        if (gameState === GAME_STATE.RESULTS) return;
+        setGameState(GAME_STATE.RESULTS);
+        setGameResult({
+            type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
+            option: GAME_COMPLETION_OPTION.TIMED_OUT,
+        });
+    }, [sequences]);
 
+    function checkGameCompletion(sequences: GameSequences) {
         // Все последовательности выполнены
         if (isAllGameSequencesCompleted(sequences)) {
             setGameState(GAME_STATE.RESULTS);
@@ -142,7 +138,7 @@ export function Game({ config }: GameProps) {
         }
 
         // Буфер заполнен
-        if (buffer.length === config.bufferSize) {
+        if (buffer.length + 1 === config.bufferSize) {
             finalUpdateSequencesStatus();
 
             setGameState(GAME_STATE.RESULTS);
@@ -153,18 +149,45 @@ export function Game({ config }: GameProps) {
 
             return;
         }
+    }
 
-        // Время вышло
-        if (timedOut) {
-            finalUpdateSequencesStatus();
+    // Логика завершения игры
+    // useEffect(() => {
+    //     // Ограничиваем, так как finalUpdateSequencesStatus обновляет sequences
+    //     if (gameState === GAME_STATE.RESULTS) return;
 
-            setGameState(GAME_STATE.RESULTS);
-            setGameResult({
-                type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
-                option: GAME_COMPLETION_OPTION.TIMED_OUT,
-            });
-        }
-    }, [sequences, buffer, timedOut]);
+    //     // Все последовательности выполнены
+    //     if (isAllGameSequencesCompleted(sequences)) {
+    //         setGameState(GAME_STATE.RESULTS);
+    //         setGameResult({ type: "success", option: GAME_COMPLETION_OPTION.ALL_UPLOADED });
+
+    //         return;
+    //     }
+
+    //     // Буфер заполнен
+    //     if (buffer.length === config.bufferSize) {
+    //         finalUpdateSequencesStatus();
+
+    //         setGameState(GAME_STATE.RESULTS);
+    //         setGameResult({
+    //             type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
+    //             option: GAME_COMPLETION_OPTION.BUFFER_FULL,
+    //         });
+
+    //         return;
+    //     }
+
+    //     // Время вышло
+    //     if (timedOut) {
+    //         finalUpdateSequencesStatus();
+
+    //         setGameState(GAME_STATE.RESULTS);
+    //         setGameResult({
+    //             type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
+    //             option: GAME_COMPLETION_OPTION.TIMED_OUT,
+    //         });
+    //     }
+    // }, [sequences, buffer, timedOut]);
 
     return (
         <div>
