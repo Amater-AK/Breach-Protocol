@@ -8,36 +8,50 @@ interface SequencesProps {
 
 export function Sequences({ sequences }: SequencesProps) {
     return (
-        <div>
-            {sequences.map((sequence, index) => (
-                <SequencesElement key={`element#${index}`} sequence={sequence} />
-            ))}
+        <div className="border border-border-secondary">
+            <h2 className="px-4 py-1 text-lg border-b border-border-secondary uppercase">
+                Sequence required to upload deamon
+            </h2>
+            <div className="p-2">
+                {sequences.map((sequence, index) => (
+                    <SequenceElement key={`element#${index}`} sequence={sequence} />
+                ))}
+            </div>
         </div>
     );
 }
 
-interface SequencesElementProps {
+interface SequenceElementProps {
     sequence: GameSequence;
 }
 
-export function SequencesElement({ sequence }: SequencesElementProps) {
+export function SequenceElement({ sequence }: SequenceElementProps) {
     return (
-        <div className="flex gap-2 uppercase">
-            {sequence.values.map((value, i) => {
-                return (
-                    <span
-                        key={`value#${i}`}
-                        className={`p-1 ${i < sequence.index ? "text-green-500" : i === sequence.index ? "bg-stone-200" : ""}`}
-                    >
-                        {value}
-                    </span>
-                );
-            })}
+        <div>
+            {sequence.status === SEQUENCE_STATUS.CHECKING && (
+                <div className="flex gap-2 uppercase">
+                    {sequence.values.map((value, i) => {
+                        const isMatched = i < sequence.index;
+                        const isCurrent = i === sequence.index;
+
+                        return (
+                            <span
+                                key={`value#${i}`}
+                                className={`aspect-square p-2 ${isMatched ? "text-text-primary" : isCurrent ? "text-text-secondary bg-current-direction/10" : "text-text-secondary"}`}
+                            >
+                                {value}
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
 
             {sequence.status !== SEQUENCE_STATUS.CHECKING && (
-                <span className={`${sequence.status === SEQUENCE_STATUS.SUCCESS ? "text-green-500" : "text-red-500"}`}>
-                    {sequence.status === SEQUENCE_STATUS.SUCCESS ? "Success" : "Fail"}
-                </span>
+                <p
+                    className={`p-2 text-text-negative ${sequence.status === SEQUENCE_STATUS.SUCCESS ? "bg-surface-success" : "bg-surface-fail"} uppercase`}
+                >
+                    {sequence.status === SEQUENCE_STATUS.SUCCESS ? "Installed" : "Failed"}
+                </p>
             )}
         </div>
     );

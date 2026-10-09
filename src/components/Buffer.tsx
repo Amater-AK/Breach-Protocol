@@ -7,20 +7,34 @@ interface BufferProps {
 
 export function Buffer({ buffer, size }: BufferProps) {
     return (
-        <div className="flex gap-2 p-2 border border-stone-700">
-            {Array(size)
-                .fill(0)
-                .map((_, index) => (
-                    <BufferElement key={`element#${index}`} element={buffer[index] || ""} />
-                ))}
+        <div className="flex items-start gap-4">
+            <div className="flex gap-2 max-w-fit px-4 py-2 bg-bg-primary border border-border-primary">
+                {Array(size)
+                    .fill(0)
+                    .map((_, index) => (
+                        <BufferElement
+                            key={`element#${index}`}
+                            element={buffer[index] || ""}
+                            isEmpty={!buffer[index]}
+                        />
+                    ))}
+            </div>
+            <h2 className="hidden md:block text-xl uppercase">Buffer</h2>
         </div>
     );
 }
 
 interface BufferElementProps {
     element: Element;
+    isEmpty: boolean;
 }
 
-function BufferElement({ element }: BufferElementProps) {
-    return <div className="flex justify-center items-center size-10 border border-stone-200 uppercase">{element}</div>;
+function BufferElement({ element, isEmpty }: BufferElementProps) {
+    return (
+        <div
+            className={`flex justify-center items-center size-8 border ${isEmpty ? "border-dashed" : ""} border-border-primary uppercase`}
+        >
+            {element}
+        </div>
+    );
 }

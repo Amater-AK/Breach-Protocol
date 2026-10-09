@@ -29,14 +29,14 @@ export function Timer({ duration, isRunning, onTimeOut }: TimerProps) {
     }, [isRunning, onTimeOut]);
 
     return (
-        <div className="flex flex-col gap-1 w-60">
+        <div className="flex flex-col gap-1">
             <div className="flex justify-between items-center gap-4">
-                <p>Remainig time</p>
-                <div className=" p-1 border border-stone-600">{(timeLeft / 1000).toFixed(2)}</div>
+                <h2 className="text-lg md:text-xl uppercase">Breach remaining time</h2>
+                <p className="px-3 py-1 border border-border-primary">{(timeLeft / 1000).toFixed(2)}</p>
             </div>
-            <div className="border border-stone-600">
+            <div className="border border-border-secondary">
                 <div
-                    className="w-(--fill-percent) h-2 bg-stone-600"
+                    className="w-(--fill-percent) h-2 bg-surface-primary"
                     style={
                         {
                             "--fill-percent": `${(timeLeft / duration) * 100}%`,

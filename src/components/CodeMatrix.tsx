@@ -10,11 +10,10 @@ import { getMatrixRowIndices, getMatrixColIndices } from "@/utils";
 
 interface CodeMatrixProps {
     matrix: Matrix;
-    isDisabled: boolean;
     onSelect: (value: Element, index: number) => void;
 }
 
-export function CodeMatrix({ matrix, isDisabled, onSelect }: CodeMatrixProps) {
+export function CodeMatrix({ matrix, onSelect }: CodeMatrixProps) {
     const [direction, setDirection] = useState<MatrixDirection>(MATRIX_DIRECTION.ROW);
     const [currentDirectionNumber, setCurrentDirectionNumber] = useState<number>(0);
     const [nextDirectionNumber, setNextDirectionNumber] = useState<number | null>(null);
@@ -30,7 +29,7 @@ export function CodeMatrix({ matrix, isDisabled, onSelect }: CodeMatrixProps) {
     const size = Math.sqrt(matrix.length);
 
     function handleSelect(element: Element, index: number, directionNumber: number) {
-        if (element === "" || isDisabled) return;
+        if (element === "") return;
 
         // Изменение направления (строка -> колонка -> строка -> ...)
         setDirection((prevDirection) =>
@@ -43,33 +42,39 @@ export function CodeMatrix({ matrix, isDisabled, onSelect }: CodeMatrixProps) {
     }
 
     return (
-        // Сделать компонент сетки в css, который получает переменную и устанавливает grid
-        <div
-            className="grid grid-cols-(--matrix-size) grid-rows-(--matrix-size) size-80"
-            style={{ "--matrix-size": `repeat(${size}, minmax(0, 1fr))` } as React.CSSProperties}
-        >
-            {matrix.map((element, index) => {
-                const col = index % size;
-                const row = (index - col) / size;
-                const inCurrentDirection = currentDirectionIndices.includes(index);
-                const newDirectionNumber = direction === MATRIX_DIRECTION.ROW ? col : row;
+        <div className="border border-border-primary">
+            <h2 className="px-4 py-1 text-lg text-text-negative bg-surface-primary uppercase">Code matrix</h2>
 
-                return (
-                    <CodeMatrixGridElement
-                        key={`element#${index}`}
-                        inCurrentDirection={inCurrentDirection}
-                        inNextDirection={nextDirectionIndices.includes(index)}
-                        onEnter={() => setNextDirectionNumber(newDirectionNumber)}
-                        onLeave={() => setNextDirectionNumber(null)}
-                    >
-                        <CodeMatrixElement
-                            element={element}
-                            isDisabled={!inCurrentDirection}
-                            onClick={() => handleSelect(element, index, newDirectionNumber)}
-                        />
-                    </CodeMatrixGridElement>
-                );
-            })}
+            <div className="flex justify-center p-2">
+                <div
+                    className="grid grid-cols-(--matrix-size) grid-rows-(--matrix-size)"
+                    style={{ "--matrix-size": `repeat(${size}, minmax(0, 1fr))` } as React.CSSProperties}
+                >
+                    {matrix.map((element, index) => {
+                        const col = index % size;
+                        const row = (index - col) / size;
+                        const inCurrentDirection = currentDirectionIndices.includes(index);
+                        const newDirectionNumber = direction === MATRIX_DIRECTION.ROW ? col : row;
+
+                        return (
+                            <CodeMatrixGridElement
+                                key={`element#${index}`}
+                                inCurrentDirection={inCurrentDirection}
+                                inNextDirection={nextDirectionIndices.includes(index)}
+                                onEnter={() => setNextDirectionNumber(newDirectionNumber)}
+                                onLeave={() => setNextDirectionNumber(null)}
+                            >
+                                <CodeMatrixElement
+                                    element={element}
+                                    isEmpty={!element}
+                                    isDisabled={!inCurrentDirection}
+                                    onClick={() => handleSelect(element, index, newDirectionNumber)}
+                                />
+                            </CodeMatrixGridElement>
+                        );
+                    })}
+                </div>
+            </div>
         </div>
     );
 }
@@ -91,7 +96,7 @@ function CodeMatrixGridElement({
 }: CodeMatrixGridElementProps) {
     return (
         <div
-            className={`p-2 ${inCurrentDirection ? "bg-amber-200" : inNextDirection ? "bg-stone-200" : ""}`}
+            className={`aspect-square ${inCurrentDirection ? "bg-current-direction/10" : inNextDirection ? "bg-next-direction/10" : ""}`}
             onPointerEnter={onEnter}
             onPointerLeave={onLeave}
         >

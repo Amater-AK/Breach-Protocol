@@ -30,6 +30,7 @@
     --color-blue-400: hsl(182, 97%, 71%);
 
     --color-purple-900: hsl(264, 17%, 12%);
+    --color-purple-600: hsl(274, 20%, 33%);
 
     --color-lime-400: hsl(71, 81%, 66%);
     --color-lime-600: hsl(71, 24%, 48%);
@@ -48,30 +49,43 @@
     --color-text-attention: var(--color-blue-400);
     --color-text-negative: var(--color-purple-900);
 
-    --color-button-primary-bg: var(--color-green-700);
-    --color-button-primary-text: var(--color-green-500);
-    --color-button-primary-border: var(--color-green-500);
+    --color-button-primary-bg: hsl(from var(--color-lime-400) h s l / 0.2);
+    --color-button-primary-text: var(--color-lime-400);
+    --color-button-primary-border: var(--color-lime-400);
+    --color-button-primary-bg-hover: var(--color-lime-400);
     --color-button-primary-text-hover: var(--color-purple-900);
 
-    --color-button-secondary-bg: var(--color-red-700);
-    --color-button-secondary-text: var(--color-red-400);
-    --color-button-secondary-border: var(--color-red-400);
-    --color-button-secondary-text-hover: var(--color-purple-900);
+    --color-button-success-bg: var(--color-green-700);
+    --color-button-success-text: var(--color-green-500);
+    --color-button-success-border: var(--color-green-500);
+    --color-button-success-bg-hover: var(--color-green-500);
+    --color-button-success-text-hover: var(--color-purple-900);
+
+    --color-button-fail-bg: var(--color-red-700);
+    --color-button-fail-text: var(--color-red-400);
+    --color-button-fail-border: var(--color-red-400);
+    --color-button-fail-bg-hover: var(--color-red-400);
+    --color-button-fail-text-hover: var(--color-purple-900);
 
     --color-border-primary: var(--color-lime-400);
     --color-border-secondary: var(--color-lime-600);
 
     --color-outline: var(--color-blue-400);
 
+    --color-empty: var(--color-purple-600);
+
     --color-success: var(--color-green-500);
     --color-fail: var(--color-red-400);
+
+    --color-current-direction: var(--color-white);
+    --color-next-direction: var(--color-lime-400);
 
     --gradient-horizontal-stripes: var(--color-lime-400) 50%, transparent 50%;
 
     --text-xxs: 0.625rem;
 
     --content-max-width: 96rem;
-    --content-main-width: 64rem;
+    --content-main-width: 80rem;
 }
 
 @layer base {

@@ -1,6 +1,9 @@
 import { useState } from "react";
 
+import { useGeneration } from "@/contexts/generation/GenerationContext";
+
 import { Header } from "./Header";
+import { ScreenContainer } from "./ScreenContainer";
 import { MenuScreen } from "./MenuScreen";
 import { GameScreen } from "./GameScreen";
 
@@ -12,8 +15,13 @@ export function Game() {
     const [gameScreen, setGameScreen] = useState<TypeGameScreen>(GAME_SCREEN.MENU);
     const [gameConfig, setGameConfig] = useState<GameConfig>(GAME_CONFIGS[GAME_DIFFICULTY.NORMAL]);
 
+    const generation = useGeneration();
+
     function handleSelectDifficulty(difficulty: GameDifficulty) {
-        setGameConfig(GAME_CONFIGS[difficulty]);
+        const config = GAME_CONFIGS[difficulty];
+        generation.generate(config);
+
+        setGameConfig(config);
         setGameScreen(GAME_SCREEN.GAME);
     }
 
@@ -23,11 +31,13 @@ export function Game() {
     }
 
     return (
-        <div className="wrapper-wide h-svh px-2 py-8">
+        <div className="wrapper-wide flex flex-col gap-4 h-svh px-2 py-4 md:py-8">
             <Header />
 
-            {gameScreen === GAME_SCREEN.MENU && <MenuScreen onSelectDifficulty={handleSelectDifficulty} />}
-            {gameScreen === GAME_SCREEN.GAME && <GameScreen config={gameConfig} onBack={handleBack} />}
+            <ScreenContainer>
+                {gameScreen === GAME_SCREEN.MENU && <MenuScreen onSelectDifficulty={handleSelectDifficulty} />}
+                {gameScreen === GAME_SCREEN.GAME && <GameScreen config={gameConfig} onBack={handleBack} />}
+            </ScreenContainer>
         </div>
     );
 }

@@ -6,18 +6,20 @@ import { CodeMatrix } from "./CodeMatrix";
 import { Buffer } from "./Buffer";
 import { Sequences } from "./Sequences";
 import { Timer } from "./Timer";
+import { Button } from "./ui/Button";
+import { GameResult } from "./GameResult";
 
 import {
     type GameConfig,
     type GameState,
-    type GameResult,
+    type GameResult as TypeGameResult,
     type Element,
     type Matrix,
     type GameSequences,
     type Buffer as TypeBuffer,
 } from "@/types";
 
-import { GAME_STATE, SEQUENCE_STATUS, GAME_COMPLETION_OPTION, GAME_COMPLETION_DESCRIPTIONS } from "@/consts";
+import { GAME_STATE, SEQUENCE_STATUS, GAME_COMPLETION_OPTION } from "@/consts";
 
 import { createGameSequence, isSomeGameSequencesCompleted, isAllGameSequencesCompleted } from "@/utils";
 
@@ -30,11 +32,8 @@ export function GameScreen({ config, onBack }: GameScreenProps) {
     const generation = useGeneration();
 
     const [gameState, setGameState] = useState<GameState>(GAME_STATE.WAIT);
-    const [gameResult, setGameResult] = useState<GameResult | null>(null);
-    const [gameIterationKey, setGameIterationKey] = useState(() => {
-        generation.generate(config); // ! Временно
-        return 0;
-    });
+    const [gameResult, setGameResult] = useState<TypeGameResult | null>(null);
+    const [gameIterationKey, setGameIterationKey] = useState(0);
 
     const [matrix, setMatrix] = useState<Matrix>(() => generation.getMatrix());
     const [sequences, setSequences] = useState<GameSequences>(() => {
@@ -84,25 +83,6 @@ export function GameScreen({ config, onBack }: GameScreenProps) {
         setSequences(updatedSequences);
 
         checkGameCompletion(updatedSequences);
-
-        // Все последовательности выполнены
-        // if (updatedSequences.every((sequence) => sequence.status === SEQUENCE_STATUS.SUCCESS)) {
-        //     setGameState(GAME_STATE.RESULTS);
-        //     setGameResult({ type: "success", option: GAME_COMPLETION_OPTION.ALL_UPLOADED });
-
-        //     return;
-        // }
-
-        // Буфер заполнен
-        // if (buffer.length + 1 === config.bufferSize) {
-        //     finalUpdateSequencesStatus();
-
-        //     setGameState(GAME_STATE.RESULTS);
-        //     setGameResult({
-        //         type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
-        //         option: GAME_COMPLETION_OPTION.BUFFER_FULL,
-        //     });
-        // }
     }
 
     // Не выполненные последовательности помечаются, как проваленные
@@ -143,89 +123,54 @@ export function GameScreen({ config, onBack }: GameScreenProps) {
             finalUpdateSequencesStatus();
 
             setGameState(GAME_STATE.RESULTS);
+            const isSome = isSomeGameSequencesCompleted(sequences);
             setGameResult({
-                type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
-                option: GAME_COMPLETION_OPTION.BUFFER_FULL,
+                type: isSome ? "success" : "fail",
+                option: isSome ? GAME_COMPLETION_OPTION.UPLOADED : GAME_COMPLETION_OPTION.BUFFER_FULL,
             });
 
             return;
         }
     }
 
-    // Логика завершения игры
-    // useEffect(() => {
-    //     // Ограничиваем, так как finalUpdateSequencesStatus обновляет sequences
-    //     if (gameState === GAME_STATE.RESULTS) return;
-
-    //     // Все последовательности выполнены
-    //     if (isAllGameSequencesCompleted(sequences)) {
-    //         setGameState(GAME_STATE.RESULTS);
-    //         setGameResult({ type: "success", option: GAME_COMPLETION_OPTION.ALL_UPLOADED });
-
-    //         return;
-    //     }
-
-    //     // Буфер заполнен
-    //     if (buffer.length === config.bufferSize) {
-    //         finalUpdateSequencesStatus();
-
-    //         setGameState(GAME_STATE.RESULTS);
-    //         setGameResult({
-    //             type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
-    //             option: GAME_COMPLETION_OPTION.BUFFER_FULL,
-    //         });
-
-    //         return;
-    //     }
-
-    //     // Время вышло
-    //     if (timedOut) {
-    //         finalUpdateSequencesStatus();
-
-    //         setGameState(GAME_STATE.RESULTS);
-    //         setGameResult({
-    //             type: isSomeGameSequencesCompleted(sequences) ? "success" : "fail",
-    //             option: GAME_COMPLETION_OPTION.TIMED_OUT,
-    //         });
-    //     }
-    // }, [sequences, buffer, timedOut]);
-
     return (
-        <div>
-            <Timer
-                key={`timer#${gameIterationKey}`}
-                duration={10000}
-                isRunning={gameState === GAME_STATE.PLAYING}
-                onTimeOut={handleTimeOut}
-            />
+        <section className="h-full flex flex-col gap-4">
+            <div className="grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-10 -mx-5.5 md:-mx-3.5 px-3.5 py-2 bg-surface-primary/20 border-y border-border-secondary">
+                <Timer
+                    key={`timer#${gameIterationKey}`}
+                    duration={10000}
+                    isRunning={gameState === GAME_STATE.PLAYING}
+                    onTimeOut={handleTimeOut}
+                />
 
-            <CodeMatrix
-                key={`matrix#${gameIterationKey}`}
-                matrix={matrix}
-                isDisabled={gameState === GAME_STATE.RESULTS}
-                onSelect={handleSelectElement}
-            />
+                <Buffer buffer={buffer} size={config.bufferSize} />
+            </div>
 
-            <Buffer buffer={buffer} size={config.bufferSize} />
+            <div className="grid md:grid-cols-2 items-start gap-2 md:gap-4 lg:gap-10">
+                <div className="flex flex-col gap-2">
+                    {gameState !== GAME_STATE.RESULTS && (
+                        <CodeMatrix key={`matrix#${gameIterationKey}`} matrix={matrix} onSelect={handleSelectElement} />
+                    )}
+                    {gameState === GAME_STATE.RESULTS && <GameResult result={gameResult!} />}
 
-            <Sequences sequences={sequences} />
+                    <div className="flex justify-between gap-4">
+                        <Button styleType="primary" onClick={onBack}>
+                            Back
+                        </Button>
 
-            {gameState === GAME_STATE.RESULTS && (
-                <div className="flex justify-between gap-4">
-                    <p className="flex gap-4">
-                        {gameResult && (
-                            <>
-                                <span>{GAME_COMPLETION_DESCRIPTIONS[gameResult.option]}</span>
-                                <span>{gameResult.type}</span>
-                            </>
+                        {gameState === GAME_STATE.RESULTS && (
+                            <Button
+                                styleType={gameResult!.type === "success" ? "success" : "fail"}
+                                onClick={handleRestart}
+                            >
+                                Reboot
+                            </Button>
                         )}
-                    </p>
-
-                    <button className="p-1 bg-stone-400" onClick={handleRestart}>
-                        Again
-                    </button>
+                    </div>
                 </div>
-            )}
-        </div>
+
+                <Sequences sequences={sequences} />
+            </div>
+        </section>
     );
 }
