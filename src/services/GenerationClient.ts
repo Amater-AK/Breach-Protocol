@@ -16,7 +16,7 @@ export class GenerationClient {
     }
 
     private getRandomHexValue(): string {
-        return Math.floor(Math.random() * 256).toString(16);
+        return Math.floor(16 + Math.random() * 240).toString(16); // [16;256) -> [10;FF)
     }
 
     private generateAlphabet(alphabetLength: number): string[] {
