@@ -140,7 +140,7 @@ export function GameScreen({ config, onBack, onRestart }: GameScreenProps) {
             <div className="grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-10 -mx-5.5 md:-mx-3.5 px-3.5 py-2 bg-surface-primary/20 border-y border-border-secondary">
                 <Timer
                     key={`timer#${gameIterationKey}`}
-                    duration={10000}
+                    duration={config.timeLimit}
                     isRunning={gameState === GAME_STATE.PLAYING}
                     onTimeOut={handleTimeOut}
                 />
