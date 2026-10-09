@@ -95,7 +95,7 @@ export class GenerationClient {
                 }
                 if (candidateIndices.length === 0) {
                     throw new Error(
-                        "Sequences generation failed: No available candidates for the element. Sequence length is too great.",
+                        "Sequences generation failed: No available candidates for the element. Sequence length is too great or too many sequences.",
                     );
                 }
 

@@ -26,9 +26,10 @@ import { createGameSequence, isSomeGameSequencesCompleted, isAllGameSequencesCom
 interface GameScreenProps {
     config: GameConfig;
     onBack: () => void;
+    onRestart: () => void;
 }
 
-export function GameScreen({ config, onBack }: GameScreenProps) {
+export function GameScreen({ config, onBack, onRestart }: GameScreenProps) {
     const generation = useGeneration();
 
     const [gameState, setGameState] = useState<GameState>(GAME_STATE.WAIT);
@@ -44,7 +45,8 @@ export function GameScreen({ config, onBack }: GameScreenProps) {
     const [buffer, setBuffer] = useState<TypeBuffer>([]);
 
     function handleRestart() {
-        generation.generate(config);
+        //generation.generate(config);
+        onRestart();
 
         setGameState(GAME_STATE.WAIT);
         setGameIterationKey((prevIteratinoKey) => prevIteratinoKey + 1);
