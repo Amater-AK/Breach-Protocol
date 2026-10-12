@@ -1,4 +1,5 @@
 import { ErrorBoundary } from "react-error-boundary";
+import { LazyMotion, domAnimation } from "motion/react";
 
 import { GenerationProvider } from "@/contexts/generation/GenerationProvider";
 
@@ -10,7 +11,9 @@ export function App() {
     return (
         <ErrorBoundary FallbackComponent={Error}>
             <GenerationProvider>
-                <Game />
+                <LazyMotion features={domAnimation}>
+                    <Game />
+                </LazyMotion>
             </GenerationProvider>
         </ErrorBoundary>
     );

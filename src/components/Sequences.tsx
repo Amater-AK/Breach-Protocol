@@ -1,3 +1,6 @@
+import * as m from "motion/react-m";
+import { type Variants } from "motion";
+
 import { type GameSequence, type GameSequences } from "@/types";
 
 import { SEQUENCE_STATUS } from "@/consts";
@@ -12,6 +15,7 @@ export function Sequences({ sequences }: SequencesProps) {
             <h2 className="px-4 py-1 text-lg border-b border-border-secondary uppercase">
                 Sequence required to upload deamon
             </h2>
+
             <div className="p-2">
                 {sequences.map((sequence, index) => (
                     <SequenceElement key={`element#${index}`} sequence={sequence} />
@@ -21,13 +25,23 @@ export function Sequences({ sequences }: SequencesProps) {
     );
 }
 
+const squenceElementVariants: Variants = {
+    initial: {
+        opacity: 0,
+    },
+    target: {
+        opacity: 1,
+        transition: { duration: 0.4 },
+    },
+};
+
 interface SequenceElementProps {
     sequence: GameSequence;
 }
 
 export function SequenceElement({ sequence }: SequenceElementProps) {
     return (
-        <div>
+        <>
             {sequence.status === SEQUENCE_STATUS.CHECKING && (
                 <div className="flex gap-2 uppercase">
                     {sequence.values.map((value, i) => {
@@ -47,12 +61,15 @@ export function SequenceElement({ sequence }: SequenceElementProps) {
             )}
 
             {sequence.status !== SEQUENCE_STATUS.CHECKING && (
-                <p
+                <m.p
+                    variants={squenceElementVariants}
+                    initial="initial"
+                    animate="target"
                     className={`p-2 text-text-negative ${sequence.status === SEQUENCE_STATUS.SUCCESS ? "bg-surface-success" : "bg-surface-fail"} uppercase`}
                 >
                     {sequence.status === SEQUENCE_STATUS.SUCCESS ? "Installed" : "Failed"}
-                </p>
+                </m.p>
             )}
-        </div>
+        </>
     );
 }

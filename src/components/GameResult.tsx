@@ -1,6 +1,19 @@
+import * as m from "motion/react-m";
+import { type Variants } from "motion";
+
 import { type GameResult } from "@/types";
 
 import { GAME_COMPLETION_DESCRIPTIONS } from "@/consts";
+
+const gameResultVariants: Variants = {
+    initial: {
+        opacity: 0,
+    },
+    target: {
+        opacity: [1, 0, 1],
+        transition: { duration: 0.4 },
+    },
+};
 
 interface GameResultProps {
     result: GameResult;
@@ -9,10 +22,10 @@ interface GameResultProps {
 export function GameResult({ result }: GameResultProps) {
     if (result.type === "success") {
         return (
-            <div className="border border-success">
+            <m.div variants={gameResultVariants} initial="initial" animate="target" className="border border-success">
                 <h2 className="px-4 py-1 text-lg text-text-negative bg-surface-success uppercase">Output</h2>
 
-                <div className="px-4 py-2 text-success bg-bg-success uppercase">
+                <m.div className="px-4 py-2 text-success bg-bg-success uppercase">
                     <p>//Root</p>
                     <p>//Access_Request</p>
                     <p>//Access_Request_Success</p>
@@ -25,17 +38,17 @@ export function GameResult({ result }: GameResultProps) {
                     <p>//</p>
                     <p>//Upload_In_Progress</p>
                     <p>//Upload_Complete</p>
-                </div>
+                </m.div>
 
                 <output className="flex justify-center items-center py-6 text-text-negative bg-surface-success uppercase">
                     {GAME_COMPLETION_DESCRIPTIONS[result.option]}
                 </output>
-            </div>
+            </m.div>
         );
     }
 
     return (
-        <div className="border border-fail">
+        <m.div variants={gameResultVariants} initial="initial" animate="target" className="border border-fail">
             <h2 className="px-4 py-1 text-lg text-text-negative bg-surface-fail uppercase">Output</h2>
 
             <div className="px-4 py-2 text-fail bg-bg-fail uppercase">
@@ -54,7 +67,7 @@ export function GameResult({ result }: GameResultProps) {
             <output className="flex justify-center items-center py-6 text-text-negative bg-surface-fail uppercase">
                 {GAME_COMPLETION_DESCRIPTIONS[result.option]}
             </output>
-        </div>
+        </m.div>
     );
 }
 

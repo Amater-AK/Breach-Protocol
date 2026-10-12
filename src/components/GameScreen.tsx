@@ -1,4 +1,7 @@
 import { useState, useCallback } from "react";
+import * as m from "motion/react-m";
+import { type Variants } from "motion";
+import { AnimatePresence } from "motion/react";
 
 import { useGeneration } from "@/contexts/generation/GenerationContext";
 
@@ -22,6 +25,20 @@ import {
 import { GAME_STATE, SEQUENCE_STATUS, GAME_COMPLETION_OPTION } from "@/consts";
 
 import { createGameSequence, isSomeGameSequencesCompleted, isAllGameSequencesCompleted } from "@/utils";
+
+const gameScreenVariants: Variants = {
+    initial: {
+        opacity: 0,
+    },
+    target: {
+        opacity: 1,
+        transition: { duration: 0.8 },
+    },
+    exit: {
+        opacity: 0,
+        transition: { ease: "easeIn" },
+    },
+};
 
 interface GameScreenProps {
     config: GameConfig;
@@ -136,7 +153,13 @@ export function GameScreen({ config, onBack, onRestart }: GameScreenProps) {
     }
 
     return (
-        <section className="h-full flex flex-col gap-4">
+        <m.section
+            variants={gameScreenVariants}
+            initial="initial"
+            animate="target"
+            exit="exit"
+            className="h-full flex flex-col gap-4"
+        >
             <div className="grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-10 -mx-5.5 md:-mx-3.5 px-3.5 py-2 bg-surface-primary/20 border-y border-border-secondary">
                 <Timer
                     key={`timer#${gameIterationKey}`}
@@ -150,10 +173,16 @@ export function GameScreen({ config, onBack, onRestart }: GameScreenProps) {
 
             <div className="grid md:grid-cols-2 items-start gap-2 md:gap-4 lg:gap-10">
                 <div className="flex flex-col gap-2">
-                    {gameState !== GAME_STATE.RESULTS && (
-                        <CodeMatrix key={`matrix#${gameIterationKey}`} matrix={matrix} onSelect={handleSelectElement} />
-                    )}
-                    {gameState === GAME_STATE.RESULTS && <GameResult result={gameResult!} />}
+                    <AnimatePresence mode="wait">
+                        {gameState !== GAME_STATE.RESULTS && (
+                            <CodeMatrix
+                                key={`matrix#${gameIterationKey}`}
+                                matrix={matrix}
+                                onSelect={handleSelectElement}
+                            />
+                        )}
+                        {gameState === GAME_STATE.RESULTS && <GameResult result={gameResult!} />}
+                    </AnimatePresence>
 
                     <div className="flex justify-between gap-4">
                         <Button styleType="primary" onClick={onBack}>
@@ -173,6 +202,6 @@ export function GameScreen({ config, onBack, onRestart }: GameScreenProps) {
 
                 <Sequences sequences={sequences} />
             </div>
-        </section>
+        </m.section>
     );
 }

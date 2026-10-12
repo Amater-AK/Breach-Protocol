@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useErrorBoundary } from "react-error-boundary";
+import { AnimatePresence } from "motion/react";
 
 import { useGeneration } from "@/contexts/generation/GenerationContext";
 
-import { Header } from "./Header";
 import { ScreenContainer } from "./ScreenContainer";
+import { Header } from "./Header";
 import { MenuScreen } from "./MenuScreen";
 import { GameScreen } from "./GameScreen";
 
@@ -49,10 +50,19 @@ export function Game() {
             <Header />
 
             <ScreenContainer>
-                {gameScreen === GAME_SCREEN.MENU && <MenuScreen onSelectDifficulty={handleSelectDifficulty} />}
-                {gameScreen === GAME_SCREEN.GAME && (
-                    <GameScreen config={gameConfig} onBack={handleBack} onRestart={handleRestart} />
-                )}
+                <AnimatePresence mode="wait">
+                    {gameScreen === GAME_SCREEN.MENU && (
+                        <MenuScreen key="menuScreen" onSelectDifficulty={handleSelectDifficulty} />
+                    )}
+                    {gameScreen === GAME_SCREEN.GAME && (
+                        <GameScreen
+                            key="gameScreen"
+                            config={gameConfig}
+                            onBack={handleBack}
+                            onRestart={handleRestart}
+                        />
+                    )}
+                </AnimatePresence>
             </ScreenContainer>
         </div>
     );
