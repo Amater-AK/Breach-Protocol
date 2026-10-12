@@ -25,7 +25,7 @@ export function GameResult({ result }: GameResultProps) {
             <m.div variants={gameResultVariants} initial="initial" animate="target" className="border border-success">
                 <h2 className="px-4 py-1 text-lg text-text-negative bg-surface-success uppercase">Output</h2>
 
-                <m.div className="px-4 py-2 text-success bg-bg-success uppercase">
+                <div className="px-4 py-2 text-xs md:text-base text-success bg-bg-success uppercase">
                     <p>//Root</p>
                     <p>//Access_Request</p>
                     <p>//Access_Request_Success</p>
@@ -38,7 +38,7 @@ export function GameResult({ result }: GameResultProps) {
                     <p>//</p>
                     <p>//Upload_In_Progress</p>
                     <p>//Upload_Complete</p>
-                </m.div>
+                </div>
 
                 <output className="flex justify-center items-center py-6 text-text-negative bg-surface-success uppercase">
                     {GAME_COMPLETION_DESCRIPTIONS[result.option]}
@@ -51,7 +51,7 @@ export function GameResult({ result }: GameResultProps) {
         <m.div variants={gameResultVariants} initial="initial" animate="target" className="border border-fail">
             <h2 className="px-4 py-1 text-lg text-text-negative bg-surface-fail uppercase">Output</h2>
 
-            <div className="px-4 py-2 text-fail bg-bg-fail uppercase">
+            <div className="px-4 py-2 text-xs md:text-base text-fail bg-bg-fail uppercase">
                 <p>//Root_Attempt_1</p>
                 <p>//Root_Attempt_2</p>
                 <p>//Root_Attempt_3</p>
