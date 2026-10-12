@@ -1,5 +1,5 @@
 import * as m from "motion/react-m";
-import { stagger, type Variants } from "motion";
+import { type Variants } from "motion";
 
 import { Button } from "./ui/Button";
 
@@ -13,11 +13,11 @@ const menuScreenVariants: Variants = {
     },
     target: {
         opacity: [1, 0, 1, 0, 1],
-        transition: { duration: 0.8, when: "beforeChildren", delayChildren: stagger(1) },
+        transition: { duration: 0.8 },
     },
     exit: {
         opacity: 0,
-        transition: { ease: "easeIn", when: "afterChildren", delayChildren: stagger(1) },
+        transition: { ease: "easeIn" },
     },
 };
 
